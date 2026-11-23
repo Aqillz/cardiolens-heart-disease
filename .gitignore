@@ -1,0 +1,15 @@
+# Keep research inputs and working material out of the public checkout.
+*.csv
+*.docx
+*.pdf
+*.ipynb
+*.zip
+*.tar
+*.tar.gz
+__pycache__/
+.venv/
+.env*
+.openai/*
+!.openai/hosting.json
+node_modules/
+test-results/

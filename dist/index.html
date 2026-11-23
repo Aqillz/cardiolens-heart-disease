@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore the results of a heart disease classification study and try its logistic regression model with fictional clinical cases.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>CardioLens — Heart Disease Research</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a href="#overview" class="brand" aria-label="CardioLens home"><span class="brand-icon" aria-hidden="true">♥</span>Cardio<span>Lens</span></a>
+      <nav aria-label="Main navigation">
+        <a href="#overview">Overview</a>
+        <a href="#results">Study results</a>
+        <a href="#prediction">Prediction lab</a>
+        <a href="#guide">Heart guide</a>
+      </nav>
+      <span class="header-tag">Research demo</span>
+    </div>
+  </header>
+  <main class="shell" id="main" tabindex="-1">
+    <noscript><p class="notice">Enable JavaScript to open the interactive results and use the prediction lab.</p></noscript>
+    <section id="overview" class="view" aria-labelledby="overview-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span aria-hidden="true"></span> CLINICAL MACHINE LEARNING</p>
+          <h1 id="overview-title" tabindex="-1">Heart disease<br>prediction study</h1>
+          <p>Compare five classifiers trained on clinical data, see which features influenced the model, and test a fictional case in your browser.</p>
+          <div class="button-row">
+            <a class="button white" href="#prediction">Try the prediction lab</a>
+            <a class="button ghost" href="#results">Explore study results</a>
+          </div>
+        </div>
+        <div class="hero-graphic" aria-hidden="true">
+          <div class="orbit orbit-outer"></div>
+          <div class="orbit orbit-inner"></div>
+          <div class="heart-art">♥</div>
+          <svg viewBox="0 0 350 160"><path d="M0 91H101l13-20 14 39 24-74 22 96 24-62 13 21h139" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="stats" id="overview-stats" aria-label="Study highlights">
+        <article class="stat"><p>Cleaned records</p><strong data-stat="records">—</strong><small>Clinical dataset</small></article>
+        <article class="stat"><p>Models compared</p><strong data-stat="models">—</strong><small>Stratified five-fold tuning</small></article>
+        <article class="stat"><p>Best test accuracy</p><strong data-stat="accuracy">—</strong><small>Logistic regression</small></article>
+        <article class="stat"><p>Best test ROC-AUC</p><strong data-stat="auc">—</strong><small>Logistic regression and SVM</small></article>
+      </div>
+      <div class="overview-grid">
+        <article class="card">
+          <div class="card-head"><div><p class="eyebrow">PERFORMANCE</p><h2>Model comparison</h2><p>Accuracy on 61 held-out records</p></div><a href="#results" class="text-link">Full results</a></div>
+          <div id="overview-models" class="bars"><p class="muted">Loading results…</p></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><p class="eyebrow">EXPLAINABILITY</p><h2>Top model factors</h2><p>Mean absolute SHAP values</p></div><a href="#results" class="text-link" data-panel-link="explain">See factors</a></div>
+          <div id="overview-factors" class="bars teal"><p class="muted">Loading results…</p></div>
+        </article>
+      </div>
+      <p class="notice"><strong>Research and education only.</strong> Scores describe how the model classifies a case and cannot diagnose heart disease or estimate your future risk.</p>
+    </section>
+    <section id="results" class="view" aria-labelledby="results-title" hidden>
+      <div class="page-intro"><p class="eyebrow">STUDY RESULTS</p><h1 id="results-title" tabindex="-1">Research results</h1><p>Explore test performance, cross-validation, the dataset, and SHAP explanations for the selected model.</p></div>
+      <div class="tabs" role="tablist" aria-label="Result views">
+        <button type="button" role="tab" id="tab-performance" aria-selected="true" aria-controls="panel-performance">Performance</button>
+        <button type="button" role="tab" id="tab-explain" aria-selected="false" aria-controls="panel-explain" tabindex="-1">Explainability</button>
+        <button type="button" role="tab" id="tab-data" aria-selected="false" aria-controls="panel-data" tabindex="-1">Dataset</button>
+        <button type="button" role="tab" id="tab-method" aria-selected="false" aria-controls="panel-method" tabindex="-1">Methodology</button>
+      </div>
+      <div id="panel-performance" role="tabpanel" aria-labelledby="tab-performance" tabindex="0">
+        <article class="card result-card">
+          <div class="card-head"><div><h2>Held-out test performance</h2><p>Five classifiers, evaluated using the same 61 records.</p></div><label class="compact">Model version<select id="comparison-mode"><option value="test">Tuned models</option><option value="baseline">Baseline models</option></select></label></div>
+          <div class="table-scroll" tabindex="0" aria-label="Model metric table">
+            <table><thead><tr><th scope="col">Model</th><th scope="col">Accuracy</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">F1</th><th scope="col">ROC-AUC</th></tr></thead><tbody id="metric-rows"><tr><td colspan="6">Loading results…</td></tr></tbody></table>
+          </div>
+        </article>
+        <div class="overview-grid">
+          <article class="card"><div class="card-head"><div><h2>ROC comparison</h2><p>True positive rate versus false positive rate.</p></div></div><canvas id="roc" width="570" height="345" role="img" aria-label="ROC curves for five tuned models, with AUC values listed in the model table."></canvas><ul class="legend" id="roc-legend"></ul></article>
+          <article class="card">
+            <div class="card-head"><div><h2>Confusion matrix</h2><p>Counts on the held-out test split.</p></div></div>
+            <label class="compact">Tuned model<select id="model-select"></select></label>
+            <div id="confusion" class="table-scroll"></div>
+          </article>
+        </div>
+        <article class="card result-card">
+          <div class="card-head"><div><h2>Stratified five-fold validation</h2><p>Accuracy during tuning on the training split. The spread is the standard deviation across folds.</p></div></div>
+          <div class="table-scroll" tabindex="0" aria-label="Cross-validation table"><table><thead><tr><th scope="col">Model</th><th scope="col">Mean</th><th scope="col">Spread</th><th scope="col">Fold 1</th><th scope="col">Fold 2</th><th scope="col">Fold 3</th><th scope="col">Fold 4</th><th scope="col">Fold 5</th></tr></thead><tbody id="cv-rows"></tbody></table></div>
+          <details><summary>Best hyperparameters</summary><div id="best-parameters"></div></details>
+        </article>
+      </div>
+      <div id="panel-explain" role="tabpanel" aria-labelledby="tab-explain" tabindex="0" hidden>
+        <div class="overview-grid">
+          <article class="card"><div class="card-head"><div><h2>Global SHAP importance</h2><p>Mean absolute impact on the positive-label log-odds across 50 test records.</p></div></div><div class="bars teal" id="shap-global"></div></article>
+          <article class="card"><div class="card-head"><div><h2>SHAP dependence</h2><p>Average signed impact by range for the top numeric feature. Each range groups at least five records.</p></div></div><div id="dependence" class="table-scroll"></div><p class="notice">SHAP explains the model's behavior. Use a fictional case to see how your inputs change its score.</p><a class="button primary" href="#prediction">Open prediction lab</a></article>
+        </div>
+        <article class="card result-card"><div class="card-head"><div><h2>SHAP summary</h2><p>Magnitude shows typical strength. The signed mean shows the average direction relative to the training background.</p></div></div><div class="table-scroll" tabindex="0" aria-label="SHAP summary table"><table><thead><tr><th scope="col">Encoded feature</th><th scope="col">Mean absolute impact</th><th scope="col">Mean signed impact</th></tr></thead><tbody id="shap-rows"></tbody></table></div></article>
+      </div>
+      <div id="panel-data" role="tabpanel" aria-labelledby="tab-data" tabindex="0" hidden>
+        <div class="overview-grid">
+          <article class="card"><div class="card-head"><div><h2>Label distribution</h2><p>Rows retained after duplicate removal.</p></div></div><div id="dataset-bars" class="bars"></div></article>
+          <article class="card"><div class="card-head"><div><h2>Data checks</h2><p>Preparation before preprocessing and training.</p></div></div><dl class="data-checks" id="data-checks"></dl></article>
+        </div>
+        <div class="overview-grid result-card">
+          <article class="card"><div class="card-head"><div><h2>Labels by feature group</h2><p>Groups display when both label counts are at least five.</p></div></div><label class="compact">Dataset feature<select id="feature-select"></select></label><div class="table-scroll" id="feature-patterns"></div></article>
+          <article class="card"><div class="card-head"><div><h2>Numeric screening</h2><p>Range checks follow the study. IQR outliers were counted and kept.</p></div></div><div class="table-scroll" id="numeric-screening" tabindex="0" aria-label="Numeric screening table"></div></article>
+        </div>
+        <article class="card result-card"><div class="card-head"><div><h2>Feature correlation</h2><p>Pearson correlation on the original numeric codes. Interpret correlations for categorical codes with care.</p></div></div>
+          <div id="correlation" class="table-scroll correlation" tabindex="0" aria-label="Scrollable feature correlation matrix"></div></article>
+      </div>
+      <div id="panel-method" role="tabpanel" aria-labelledby="tab-method" tabindex="0" hidden>
+        <article class="card prose">
+          <h2>How the experiment worked</h2>
+          <ol class="method-list">
+            <li><strong>Prepare the data.</strong> Normalize column names, check missing values, and remove the duplicate record. Keep the binary labels as provided in the project CSV.</li>
+            <li><strong>Split the data.</strong> Use a stratified 80/20 split with random seed 42. Fit preprocessing and models using training records and their cross-validation folds.</li>
+            <li><strong>Train and tune.</strong> Standardize five numeric features and one-hot encode eight categorical features. Compare defaults with a grid search that ranks candidates by mean accuracy across five stratified folds.</li>
+            <li><strong>Evaluate.</strong> Report accuracy, precision, recall, F1 and ROC-AUC on the same 61 held-out records. Logistic regression led test accuracy and shared the best ROC-AUC with the support vector machine.</li>
+            <li><strong>Explain.</strong> Use independent-background Linear SHAP with 50 sampled training records as the reference and 50 sampled test records for the global summaries.</li>
+          </ol>
+          <h2>How to read the results</h2>
+          <p>Accuracy is the share of correct classifications. Precision is the share of positive predictions that were correct. Recall is the share of positive labels the model found. F1 balances precision and recall. ROC-AUC measures how well scores rank the two classes over different thresholds.</p>
+          <h2>Limitations</h2>
+          <p>The study used one small dataset and one held-out split. Ranking models by that split can make the winner's reported performance optimistic. External validation, calibration, and subgroup fairness were outside the study. Some category definitions in the working CSV are undocumented, so the demo displays those values as dataset codes.</p>
+          <h2>Dataset reference</h2>
+          <p>The project uses its original 303-row <code>heart.csv</code>. UCI documents the related Cleveland Heart Disease dataset; the exact recoding and provenance of the working CSV were unverified.</p>
+          <p><a href="https://archive.ics.uci.edu/dataset/45/heart+disease" rel="noreferrer">UCI Heart Disease dataset</a></p>
+        </article>
+      </div>
+    </section>
+    <section id="prediction" class="view" aria-labelledby="prediction-title" hidden>
+      <div class="page-intro"><p class="eyebrow">PREDICTION LAB</p><h1 id="prediction-title" tabindex="-1">Test a fictional case</h1><p>Try the study's logistic regression model with example inputs. Scores and explanations are computed on your device.</p></div>
+      <div class="lab-grid">
+        <article class="card">
+          <div class="card-head"><div><h2>Case inputs</h2><p>Use fictional values. All 13 fields are required.</p></div></div>
+          <div class="form-actions">
+            <button type="button" class="button secondary" id="sample-a" disabled>Load example A</button>
+            <button type="button" class="button secondary" id="sample-b" disabled>Load example B</button>
+          </div>
+          <form id="prediction-form" autocomplete="off">
+            <div class="fields" id="prediction-fields"></div>
+            <div class="form-actions bottom-actions"><button class="button primary" id="predict-button" disabled>Run prediction</button><button type="reset" class="button secondary">Clear</button></div>
+          </form>
+        </article>
+        <aside class="card prediction-output" id="prediction-output" aria-label="Prediction output" aria-live="polite">
+          <p class="eyebrow">LOGISTIC REGRESSION</p>
+          <h2>Model output</h2>
+          <div id="prediction-result"><p class="muted">Load an example or complete the form to see a classification and its main contributing factors.</p></div>
+          <p class="notice">The score is a model output for the dataset's positive label. It cannot confirm or rule out heart disease.</p>
+        </aside>
+      </div>
+    </section>
+    <section id="guide" class="view" aria-labelledby="guide-title" hidden>
+      <div class="page-intro"><p class="eyebrow">HEART GUIDE</p><h1 id="guide-title" tabindex="-1">Ask about heart health</h1><p>Ask about model factors, scores, or general guidance on food, activity, and prevention.</p></div>
+      <div class="guide-grid">
+        <article class="card chat">
+          <div class="card-head"><div><h2>Heart Health Assistant</h2><p>A browser-based guide built from curated answers.</p></div><button class="button secondary small" type="button" id="clear-chat">Clear chat</button></div>
+          <div class="prompt-row" aria-label="Suggested questions">
+            <button type="button" data-prompt="What factors influence the prediction?">Prediction factors</button>
+            <button type="button" data-prompt="What foods are heart healthy?">Food and diet</button>
+            <button type="button" data-prompt="What activity routine supports heart health?">Activity routine</button>
+            <button type="button" data-prompt="How can adults lower their risk of heart disease?">Prevention</button>
+          </div>
+          <div id="messages" class="messages" role="log" aria-label="Chat messages" aria-live="polite" tabindex="0"></div>
+          <form id="chat-form" class="chat-form" autocomplete="off"><label class="sr-only" for="question">Your question</label><input id="question" type="text" maxlength="280" required placeholder="Ask a general question…"><button class="button primary">Send</button></form>
+        </article>
+        <aside class="card prose guide-notes">
+          <h2>About the assistant</h2>
+          <p>It matches questions to study explanations and general heart-health resources. It runs without an account or API key.</p>
+          <h3>Sources</h3>
+          <ul class="source-list">
+            <li><a href="https://www.cdc.gov/heart-disease/prevention/index.html" rel="noreferrer">CDC heart disease prevention</a></li>
+            <li><a href="https://www.heart.org/en/healthy-living/healthy-lifestyle/lifes-essential-8/how-to-eat-better-fact-sheet/" rel="noreferrer">American Heart Association eating guidance</a></li>
+            <li><a href="https://www.heart.org/en/healthy-living/exercise-and-physical-activity/fitness-basics/aha-recs-for-physical-activity-in-adults" rel="noreferrer">American Heart Association activity guidelines</a></li>
+          </ul>
+          <p class="notice"><strong>Keep questions general.</strong> If you have urgent symptoms such as new chest pressure or shortness of breath, contact your local emergency services.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <footer class="shell footer"><span><strong>CardioLens</strong> · Heart disease classification research</span><span>Browser-local inputs · No accounts or tracking scripts</span></footer>
+</body>
+</html>
